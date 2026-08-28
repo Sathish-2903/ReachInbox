@@ -1,14 +1,14 @@
 # ReachInbox Scheduler — Project Status
 
 ## Current Level
-LEVEL 2 ✅ Complete
+LEVEL 3 ✅ Complete
 
 ## Completed
 
 - [x] Level 0 — Repository inspection and planning
 - [x] Level 1 — Initial project setup
 - [x] Level 2 — Docker Infrastructure
-- [ ] Level 3 — PostgreSQL + Prisma
+- [x] Level 3 — PostgreSQL + Prisma
 - [ ] Level 4 — Express Architecture
 - [ ] Level 5 — Redis + BullMQ
 - [ ] Level 6 — Email Scheduling API
@@ -35,42 +35,24 @@ LEVEL 2 ✅ Complete
 - PostgreSQL running in Docker on port 5432 (healthy)
 - Redis running in Docker on port 6379 (healthy, AOF persistence enabled)
 - Elasticsearch 8 running in Docker on port 9200 (status: green, single-node dev mode)
-- Frontend proxies `/api/*` to backend via Vite config
-- Tailwind CSS configured and working
+- Prisma ORM configured with PostgreSQL
+- `User` model (with Google OAuth and Slack token fields)
+- `Email` model (with `jobId` unique constraint for BullMQ idempotency, enum status: SCHEDULED, PROCESSING, SENT, FAILED, indexed queries)
+- Initial migration `20260828114849_init` created and applied
+- Verified DB connection & Prisma queries
 
 ## Files Added/Modified
 
 ```
-docker-compose.yml   — PostgreSQL 16, Redis 7, Elasticsearch 8.14.3
-                       Named volumes for all three (data persists across restarts)
-                       Health checks on all services
-```
-
-```
 backend/
-  package.json       — Express, dotenv, cors, TypeScript
-  tsconfig.json      — TypeScript config (ES2020, commonjs)
-  .env.example       — All env variable names (no values)
-  .env               — Local dev env (not committed)
+  prisma/
+    schema.prisma      — User, Email models, EmailStatus enum, indexes, relations
+    migrations/        — Migration 20260828114849_init
   src/
-    app.ts           — Express app with /api/health
-
-frontend/
-  package.json       — React, Vite, Tailwind, Axios, React Router
-  tsconfig.json      — Frontend TypeScript config
-  tsconfig.node.json — Vite config TS config
-  vite.config.ts     — Vite config with proxy to :3000
-  tailwind.config.js — Tailwind content paths
-  postcss.config.js  — PostCSS for Tailwind
-  .env.example       — VITE_API_BASE_URL
-  index.html         — HTML entry point
-  src/
-    main.tsx         — React root mount
-    index.css        — Tailwind directives + dark base
-    App.tsx          — Health check UI component
-
-.gitignore           — Root gitignore (node_modules, .env, dist, etc.)
-PROJECT_STATUS.md    — This file
+    config/
+      database.ts      — Prisma Client singleton instance
+    utils/
+      test-db.ts       — DB connectivity test script
 ```
 
 ## Environment Variables
@@ -91,7 +73,10 @@ PROJECT_STATUS.md    — This file
 
 ## Database Changes
 
-None yet — Prisma added in Level 3.
+- Created table `users`: `id`, `googleId` (unique), `name`, `email` (unique), `avatar`, `slackAccessToken`, `createdAt`, `updatedAt`
+- Created enum `EmailStatus`: `SCHEDULED`, `PROCESSING`, `SENT`, `FAILED`
+- Created table `emails`: `id`, `userId` (FK to users), `recipient`, `subject`, `body`, `scheduledAt`, `sentAt`, `status`, `jobId` (unique), `error`, `senderEmail`, `createdAt`, `updatedAt`
+- Added indexes on `userId`, `status`, `scheduledAt`, `recipient`, `jobId`
 
 ## APIs Implemented
 
@@ -105,32 +90,25 @@ None.
 
 ## Next Step
 
-**Level 3 — PostgreSQL + Prisma**
+**Level 4 — Express Architecture**
 
-Create Prisma schema with User and Email models, run migrations, verify DB connection.
+Create modular structure (config, controllers, routes, services, middleware, utils, types) with centralized error handling, async wrapper, environment validation, and cleaner health routing.
 
 ## Verification
 
 Commands that pass:
 
 ```powershell
+# Prisma migration & DB test
+npx ts-node src/utils/test-db.ts
+# [DB Test] Success! User count: 0, Email count: 0
+
 # Backend health
 Invoke-RestMethod -Uri "http://localhost:3000/api/health"
 # { status: 'ok' }
-
-# PostgreSQL
-docker exec reachinbox_postgres pg_isready -U reachinbox -d reachinbox
-# /var/run/postgresql:5432 - accepting connections
-
-# Redis
-docker exec reachinbox_redis redis-cli ping
-# PONG
-
-# Elasticsearch
-Invoke-RestMethod -Uri "http://localhost:9200/_cluster/health"
-# { status: 'green', number_of_nodes: 1 }
 
 # Docker containers
 docker compose ps
 # All 3 containers Up and healthy
 ```
+
