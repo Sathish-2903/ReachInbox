@@ -1,13 +1,13 @@
 # ReachInbox Scheduler — Project Status
 
 ## Current Level
-LEVEL 1 ✅ Complete
+LEVEL 2 ✅ Complete
 
 ## Completed
 
 - [x] Level 0 — Repository inspection and planning
 - [x] Level 1 — Initial project setup
-- [ ] Level 2 — Docker Infrastructure
+- [x] Level 2 — Docker Infrastructure
 - [ ] Level 3 — PostgreSQL + Prisma
 - [ ] Level 4 — Express Architecture
 - [ ] Level 5 — Redis + BullMQ
@@ -32,10 +32,19 @@ LEVEL 1 ✅ Complete
 - Express backend starts on port 3000
 - `GET /api/health` returns `{ "status": "ok" }`
 - React + Vite frontend starts on port 5173
+- PostgreSQL running in Docker on port 5432 (healthy)
+- Redis running in Docker on port 6379 (healthy, AOF persistence enabled)
+- Elasticsearch 8 running in Docker on port 9200 (status: green, single-node dev mode)
 - Frontend proxies `/api/*` to backend via Vite config
 - Tailwind CSS configured and working
 
 ## Files Added/Modified
+
+```
+docker-compose.yml   — PostgreSQL 16, Redis 7, Elasticsearch 8.14.3
+                       Named volumes for all three (data persists across restarts)
+                       Health checks on all services
+```
 
 ```
 backend/
@@ -96,22 +105,32 @@ None.
 
 ## Next Step
 
-Level 2 — Docker Infrastructure
+**Level 3 — PostgreSQL + Prisma**
 
-Create docker-compose.yml with:
-- PostgreSQL (port 5432, persistent volume)
-- Redis (port 6379, persistent volume)
-- Elasticsearch single-node dev mode (port 9200, persistent volume)
+Create Prisma schema with User and Email models, run migrations, verify DB connection.
 
 ## Verification
 
 Commands that pass:
 
 ```powershell
-# Backend health check
+# Backend health
 Invoke-RestMethod -Uri "http://localhost:3000/api/health"
-# Returns: { status: 'ok' }
+# { status: 'ok' }
 
-# Backend starts with:   cd backend && npm run dev
-# Frontend starts with:  cd frontend && npm run dev
+# PostgreSQL
+docker exec reachinbox_postgres pg_isready -U reachinbox -d reachinbox
+# /var/run/postgresql:5432 - accepting connections
+
+# Redis
+docker exec reachinbox_redis redis-cli ping
+# PONG
+
+# Elasticsearch
+Invoke-RestMethod -Uri "http://localhost:9200/_cluster/health"
+# { status: 'green', number_of_nodes: 1 }
+
+# Docker containers
+docker compose ps
+# All 3 containers Up and healthy
 ```
