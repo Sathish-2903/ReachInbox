@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment files — NEVER commit these
+.env
+**/.env
+*.env.local
+**/*.env.local
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+
+# TypeScript cache
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Prisma
+backend/prisma/migrations/**/migration_lock.toml
+
+# Docker volumes (if local bind mounts are used)
+postgres_data/
+redis_data/
+elasticsearch_data/
+
+# Uploads (temp)
+uploads/
