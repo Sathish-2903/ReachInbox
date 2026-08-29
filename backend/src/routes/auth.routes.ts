@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  getAuthStatus,
   getGoogleAuthUrl,
   handleGoogleCallback,
   getCurrentUser,
@@ -9,6 +10,9 @@ import { requireAuth } from '../middleware/auth.middleware';
 import { asyncHandler } from '../middleware/asyncHandler';
 
 const router = Router();
+
+// GET /api/auth/status
+router.get('/status', asyncHandler(getAuthStatus));
 
 // GET /api/auth/google
 router.get('/google', asyncHandler(getGoogleAuthUrl));

@@ -47,9 +47,10 @@ model Email {
   status      EmailStatus @default(SCHEDULED)
   // Stable BullMQ job ID — unique for idempotency
   jobId       String?     @unique
-  error       String?
+  previewUrl String? // Ethereal preview URL
   // Optional sender identifier for future multi-sender support
   senderEmail String?
+  error String? // error message if sending failed
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 

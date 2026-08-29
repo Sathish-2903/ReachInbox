@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { slackService } from '../services/slack.service';
+import { config } from '../config/env';
 
 export async function getSlackAuthUrl(req: Request, res: Response): Promise<void> {
   const url = slackService.getAuthorizationUrl();
@@ -22,7 +23,7 @@ export async function handleSlackCallback(req: Request, res: Response): Promise<
   }
 
   // Redirect to frontend with success query param or return JSON
-  res.redirect('/?slack_connected=true');
+  res.redirect(`${config.frontendUrl}/?slack_connected=true`);
 }
 
 export async function getSlackStatus(req: Request, res: Response): Promise<void> {

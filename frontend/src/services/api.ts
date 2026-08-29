@@ -14,6 +14,14 @@ api.interceptors.request.use((config) => {
 });
 
 export const authApi = {
+  getStatus: async (): Promise<{ googleConfigured: boolean; slackConfigured: boolean }> => {
+    try {
+      const res = await api.get<{ success: boolean; data: { googleConfigured: boolean; slackConfigured: boolean } }>('/auth/status');
+      return res.data.data;
+    } catch {
+      return { googleConfigured: false, slackConfigured: false };
+    }
+  },
   getGoogleAuthUrl: async (): Promise<string> => {
     const res = await api.get<{ success: boolean; url: string }>('/auth/google');
     return res.data.url;

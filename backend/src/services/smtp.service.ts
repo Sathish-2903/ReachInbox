@@ -12,9 +12,12 @@ export interface SendEmailOptions {
 export interface SendEmailResult {
   messageId: string;
   previewUrl: string | false;
+  rawInfo?: any; // Full Nodemailer info when preview URL is not generated
   accepted: string[];
   rejected: string[];
 }
+
+
 
 export class SmtpService {
   private transporter: Transporter | null = null;
@@ -48,7 +51,7 @@ export class SmtpService {
         console.log(`[SMTP] Dynamic Ethereal account ready: ${user}`);
       }
 
-      this.transporter = nodemailer.createTransport({
+      const transporter = nodemailer.createTransport({
         host,
         port,
         secure: port === 465,
@@ -56,19 +59,26 @@ export class SmtpService {
           user,
           pass,
         },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
       });
 
       // Verify connection
-      await this.transporter.verify();
-      console.log(`[SMTP] Connected and verified Ethereal SMTP server at ${host}:${port}`);
-
+      await transporter.verify();
+      console.log(`[SMTP] Connected and verified SMTP server at ${host}:${port}`);
+      this.transporter = transporter;
       return this.transporter;
     })();
 
-    const result = await this.isInitializing;
-    this.isInitializing = null;
-    return result;
+    try {
+      const result = await this.isInitializing;
+      return result;
+    } finally {
+      this.isInitializing = null;
+    }
   }
+
 
   /**
    * Sends an email via Ethereal SMTP and returns message metadata and live preview URL

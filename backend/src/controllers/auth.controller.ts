@@ -1,10 +1,17 @@
 import { Request, Response } from 'express';
 import { authService } from '../services/auth.service';
+import { config } from '../config/env';
+
+export async function getAuthStatus(_req: Request, res: Response): Promise<void> {
+  const status = authService.getAuthStatus();
+  res.json({ success: true, data: status });
+}
 
 export async function getGoogleAuthUrl(req: Request, res: Response): Promise<void> {
   const url = authService.getGoogleAuthUrl();
   res.json({ success: true, url });
 }
+
 
 export async function handleGoogleCallback(req: Request, res: Response): Promise<void> {
   const code = req.query.code as string;
@@ -18,7 +25,7 @@ export async function handleGoogleCallback(req: Request, res: Response): Promise
   const token = authService.generateToken(user);
 
   // Redirect to frontend with token in query param
-  res.redirect(`/?token=${token}`);
+  res.redirect(`${config.frontendUrl}/?token=${token}`);
 }
 
 export async function getCurrentUser(req: Request, res: Response): Promise<void> {

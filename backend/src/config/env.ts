@@ -1,4 +1,10 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env reliably from backend directory, fallback to process.cwd()
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Removed second dotenv.config() to avoid overriding backend .env values
+
 
 export const config = {
   port: parseInt(process.env.PORT || '3000', 10),
@@ -7,6 +13,7 @@ export const config = {
   isProd: process.env.NODE_ENV === 'production',
 
   databaseUrl: process.env.DATABASE_URL || 'postgresql://reachinbox:reachinbox@localhost:5432/reachinbox',
+  frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
 
   redis: {
     host: process.env.REDIS_HOST || 'localhost',

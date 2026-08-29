@@ -20,9 +20,26 @@ export interface AuthJwtPayload {
 
 export class AuthService {
   /**
+   * Checks whether Google and Slack OAuth credentials are configured
+   */
+  getAuthStatus() {
+    return {
+      googleConfigured: Boolean(config.google.clientId && config.google.clientId.trim() !== ''),
+      slackConfigured: Boolean(config.slack.clientId && config.slack.clientId.trim() !== ''),
+    };
+  }
+
+  /**
    * Generates Google OAuth 2.0 Authorization URL
    */
   getGoogleAuthUrl(state = 'reachinbox-google-auth'): string {
+    if (!config.google.clientId || config.google.clientId.trim() === '') {
+      throw new AppError(
+        'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in backend/.env',
+        400
+      );
+    }
+
     const rootUrl = 'https://accounts.google.com/o/oauth2/v2/auth';
     const params = new URLSearchParams({
       client_id: config.google.clientId,
@@ -36,6 +53,7 @@ export class AuthService {
 
     return `${rootUrl}?${params.toString()}`;
   }
+
 
   /**
    * Exchanges Google authorization code for access tokens and retrieves user profile

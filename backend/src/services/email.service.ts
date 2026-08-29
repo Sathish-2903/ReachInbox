@@ -245,7 +245,7 @@ export class EmailService {
   }
 
   /**
-   * Full-text search across emails using Elasticsearch with fallback (Level 12)
+   * Full-text search across emails using Elasticsearch with PostgreSQL database fallback
    */
   async searchEmails(query: string, userId?: string) {
     if (!query || query.trim() === '') {
@@ -257,13 +257,55 @@ export class EmailService {
       };
     }
 
-    const esResults = await elasticsearchService.searchEmails(query, userId);
+    try {
+      const esResults = await elasticsearchService.searchEmails(query, userId);
+      if (esResults && esResults.length > 0) {
+        return {
+          query,
+          count: esResults.length,
+          items: esResults,
+        };
+      }
+    } catch (err: any) {
+      console.warn('[EmailService] Elasticsearch search fallback to database:', err.message);
+    }
+
+    // Database fallback search via Prisma
+    const where: any = {
+      OR: [
+        { recipient: { contains: query, mode: 'insensitive' } },
+        { subject: { contains: query, mode: 'insensitive' } },
+        { body: { contains: query, mode: 'insensitive' } },
+      ],
+    };
+    if (userId) {
+      where.userId = userId;
+    }
+
+    const dbItems = await prisma.email.findMany({
+      where,
+      take: 50,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        recipient: true,
+        subject: true,
+        body: true,
+        scheduledAt: true,
+        sentAt: true,
+        status: true,
+        jobId: true,
+        createdAt: true,
+      },
+    });
+
     return {
       query,
-      count: esResults.length,
-      items: esResults,
+      count: dbItems.length,
+      items: dbItems,
     };
   }
+
 }
 
 export const emailService = new EmailService();

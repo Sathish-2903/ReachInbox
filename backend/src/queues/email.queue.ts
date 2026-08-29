@@ -35,6 +35,7 @@ export async function addEmailJob(
   opts?: JobsOptions
 ) {
   const job = await emailQueue.add(name, data, opts);
-  console.log(`[Queue] Added job ${job.id} for emailId=${data.emailId} (delay=${opts?.delay ?? 0}ms)`);
+  console.log(`[Queue] Job added: job-${job.id} for emailId=${data.emailId} to=${data.recipient} (delay=${opts?.delay ?? 0}ms)`);
   return job;
 }
+
