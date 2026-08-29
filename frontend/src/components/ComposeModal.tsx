@@ -8,7 +8,7 @@ import {
   Clock,
   Gauge,
   AlertCircle,
-  Sparkles,
+  Mail,
 } from 'lucide-react';
 
 interface ComposeModalProps {
@@ -71,21 +71,11 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
     e.preventDefault();
     setError(null);
 
-    if (!subject.trim()) {
-      setError('Please provide an email subject');
-      return;
-    }
-    if (!body.trim()) {
-      setError('Please provide email body content');
-      return;
-    }
-    if (parsedRecipients.length === 0) {
-      setError('Please provide at least one valid recipient email');
-      return;
-    }
+    if (!subject.trim()) { setError('Please provide an email subject'); return; }
+    if (!body.trim())    { setError('Please provide email body content'); return; }
+    if (parsedRecipients.length === 0) { setError('Please provide at least one valid recipient email'); return; }
 
     setLoading(true);
-
     try {
       const startTime =
         scheduleType === 'custom' && customStartTime
@@ -110,33 +100,81 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
     }
   };
 
+  /* ── shared input style ─── */
+  const inputCls = "w-full rounded-lg text-sm outline-none transition-all px-3.5 py-2.5";
+  const inputStyle = {
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border)',
+    color: 'var(--text-primary)',
+  };
+  const inputFocus = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (e.target.style.borderColor = 'var(--teal)');
+  const inputBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (e.target.style.borderColor = 'var(--border)');
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-gray-900 border border-gray-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Modal Header */}
-        <div className="px-6 py-4 border-b border-gray-800 flex items-center justify-between bg-gray-900/90">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400">
-              <Sparkles className="w-5 h-5" />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)' }}
+    >
+      <div
+        className="w-full max-w-2xl flex flex-col rounded-xl shadow-2xl overflow-hidden"
+        style={{
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          maxHeight: '90vh',
+        }}
+      >
+        {/* Header */}
+        <div
+          className="px-6 py-4 flex items-center justify-between flex-shrink-0"
+          style={{ borderBottom: '1px solid var(--border)' }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: 'var(--teal-muted)', border: '1px solid var(--teal-border)' }}
+            >
+              <Mail className="w-4 h-4" style={{ color: 'var(--teal)' }} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Compose New Outreach</h2>
-              <p className="text-xs text-gray-400">Schedule automated email dispatch with BullMQ</p>
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Compose New Outreach
+              </h2>
+              <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                Schedule automated email dispatch with BullMQ
+              </p>
             </div>
           </div>
-
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = 'var(--bg-sidebar)';
+              (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
+              (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+            }}
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Modal Body / Form */}
+        {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-5 flex-1">
+          {/* Error Banner */}
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2 text-red-400 text-xs">
+            <div
+              className="flex items-center gap-2 px-4 py-3 rounded-lg text-xs"
+              style={{
+                background: 'var(--danger-muted)',
+                border: '1px solid var(--danger-border)',
+                color: 'var(--danger)',
+              }}
+            >
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -144,7 +182,10 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
 
           {/* Subject */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+            <label
+              className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Subject Line
             </label>
             <input
@@ -153,24 +194,27 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="e.g. Quick question about your outreach strategy..."
-              className="w-full px-3.5 py-2.5 bg-gray-800/80 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+              className={inputCls}
+              style={inputStyle}
+              onFocus={inputFocus}
+              onBlur={inputBlur}
             />
           </div>
 
-          {/* Recipients Section */}
+          {/* Recipients */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                 Recipients ({parsedRecipients.length} Ready)
               </label>
-
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                className="flex items-center gap-1 text-xs font-medium transition-colors"
+                style={{ color: 'var(--teal)' }}
               >
                 <UploadCloud className="w-3.5 h-3.5" />
-                <span>Upload CSV / TXT</span>
+                Upload CSV / TXT
               </button>
               <input
                 ref={fileInputRef}
@@ -180,26 +224,31 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                 className="hidden"
               />
             </div>
-
             <textarea
               rows={3}
               value={rawRecipientsText}
               onChange={(e) => handleTextChange(e.target.value)}
               placeholder="Paste comma-separated or one email per line: alice@example.com, bob@example.com"
-              className="w-full px-3.5 py-2.5 bg-gray-800/80 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono"
+              className={`${inputCls} font-mono`}
+              style={inputStyle}
+              onFocus={inputFocus}
+              onBlur={inputBlur}
             />
 
-            {/* Upload Stats / Chips */}
+            {/* Upload Stats */}
             {uploadStats && (
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className="px-2.5 py-1 rounded-md bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 font-medium">
+                <span className="px-2 py-0.5 rounded font-medium"
+                  style={{ background: 'var(--teal-muted)', border: '1px solid var(--teal-border)', color: 'var(--teal)' }}>
                   Detected: {uploadStats.detected}
                 </span>
-                <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-medium">
+                <span className="px-2 py-0.5 rounded font-medium"
+                  style={{ background: 'var(--success-muted)', border: '1px solid var(--success-border)', color: 'var(--success)' }}>
                   Valid: {uploadStats.valid} ({uploadStats.unique} Unique)
                 </span>
                 {uploadStats.invalid > 0 && (
-                  <span className="px-2.5 py-1 rounded-md bg-red-500/10 border border-red-500/30 text-red-300 font-medium">
+                  <span className="px-2 py-0.5 rounded font-medium"
+                    style={{ background: 'var(--danger-muted)', border: '1px solid var(--danger-border)', color: 'var(--danger)' }}>
                     Invalid: {uploadStats.invalid}
                   </span>
                 )}
@@ -207,9 +256,12 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             )}
           </div>
 
-          {/* Email Body */}
+          {/* Body */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">
+            <label
+              className="block text-[11px] font-semibold uppercase tracking-wider mb-1.5"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Email Body (HTML / Plain text)
             </label>
             <textarea
@@ -217,62 +269,67 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               required
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Hi {{name}},&#10;&#10;I came across your work and wanted to reach out..."
-              className="w-full px-3.5 py-2.5 bg-gray-800/80 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all font-mono"
+              placeholder={"Hi {{name}},\n\nI came across your work and wanted to reach out..."}
+              className={`${inputCls} font-mono`}
+              style={inputStyle}
+              onFocus={inputFocus}
+              onBlur={inputBlur}
             />
           </div>
 
-          {/* Scheduling Configuration */}
-          <div className="p-4 bg-gray-800/40 border border-gray-800 rounded-xl space-y-4">
+          {/* Scheduling */}
+          <div
+            className="rounded-xl p-4 space-y-4"
+            style={{ background: 'var(--bg-sidebar)', border: '1px solid var(--border)' }}
+          >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-indigo-400" />
+              <span
+                className="text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                <Clock className="w-3.5 h-3.5" style={{ color: 'var(--teal)' }} />
                 Dispatch Timing
               </span>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setScheduleType('now')}
-                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
-                    scheduleType === 'now'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Immediate (Now)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setScheduleType('custom')}
-                  className={`px-3 py-1 text-xs rounded-lg font-medium transition-all ${
-                    scheduleType === 'custom'
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-gray-800 text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Schedule Later
-                </button>
+              <div
+                className="flex items-center rounded-lg p-0.5"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+              >
+                {(['now', 'custom'] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setScheduleType(t)}
+                    className="px-3 py-1 text-xs rounded-md font-medium transition-all"
+                    style={{
+                      background: scheduleType === t ? 'var(--teal)' : 'transparent',
+                      color: scheduleType === t ? '#fff' : 'var(--text-secondary)',
+                    }}
+                  >
+                    {t === 'now' ? 'Immediate (Now)' : 'Schedule Later'}
+                  </button>
+                ))}
               </div>
             </div>
 
             {scheduleType === 'custom' && (
-              <div>
-                <input
-                  type="datetime-local"
-                  required
-                  value={customStartTime}
-                  onChange={(e) => setCustomStartTime(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500"
-                />
-              </div>
+              <input
+                type="datetime-local"
+                required
+                value={customStartTime}
+                onChange={(e) => setCustomStartTime(e.target.value)}
+                className="w-full px-3.5 py-2 rounded-lg text-sm outline-none"
+                style={{ ...inputStyle }}
+                onFocus={inputFocus}
+                onBlur={inputBlur}
+              />
             )}
 
-            {/* Rate & Delay Limits */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            {/* Rate / Delay */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-[11px] font-medium text-gray-400 mb-1 flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-indigo-400" />
+                <label className="block text-[11px] font-medium mb-1 flex items-center gap-1"
+                  style={{ color: 'var(--text-secondary)' }}>
+                  <Clock className="w-3 h-3" style={{ color: 'var(--teal)' }} />
                   Min Delay Between Emails
                 </label>
                 <div className="flex items-center gap-2">
@@ -282,15 +339,17 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                     step={500}
                     value={delayBetweenEmails}
                     onChange={(e) => setDelayBetweenEmails(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs font-mono"
+                    className="w-full px-3 py-1.5 rounded-lg text-xs font-mono outline-none"
+                    style={inputStyle}
                   />
-                  <span className="text-xs text-gray-400">ms</span>
+                  <span className="text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>ms</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium text-gray-400 mb-1 flex items-center gap-1">
-                  <Gauge className="w-3 h-3 text-indigo-400" />
+                <label className="block text-[11px] font-medium mb-1 flex items-center gap-1"
+                  style={{ color: 'var(--text-secondary)' }}>
+                  <Gauge className="w-3 h-3" style={{ color: 'var(--teal)' }} />
                   Hourly Limit
                 </label>
                 <div className="flex items-center gap-2">
@@ -299,40 +358,58 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                     min={1}
                     value={hourlyLimit}
                     onChange={(e) => setHourlyLimit(Number(e.target.value))}
-                    className="w-full px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs font-mono"
+                    className="w-full px-3 py-1.5 rounded-lg text-xs font-mono outline-none"
+                    style={inputStyle}
                   />
-                  <span className="text-xs text-gray-400">/hr</span>
+                  <span className="text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>/hr</span>
                 </div>
               </div>
             </div>
           </div>
         </form>
 
-        {/* Modal Footer */}
-        <div className="px-6 py-4 bg-gray-900/90 border-t border-gray-800 flex items-center justify-between">
-          <div className="text-xs text-gray-400">
+        {/* Footer */}
+        <div
+          className="px-6 py-4 flex items-center justify-between flex-shrink-0"
+          style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-sidebar)' }}
+        >
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {parsedRecipients.length > 0
               ? `${parsedRecipients.length} job(s) will be added to BullMQ`
               : 'Add recipients to proceed'}
-          </div>
+          </p>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs font-semibold text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-xl transition-all"
+              className="px-4 py-2 text-xs font-semibold rounded-lg transition-colors"
+              style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-secondary)',
+              }}
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading || parsedRecipients.length === 0}
-              className="flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-lg shadow-indigo-600/30 transition-all"
+              className="flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: 'var(--teal)' }}
+              onMouseEnter={e => {
+                if (!loading && parsedRecipients.length > 0)
+                  (e.currentTarget as HTMLElement).style.background = 'var(--teal-hover)';
+              }}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--teal)'}
             >
               {loading ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Scheduling...</span>
+                  <div
+                    className="w-3.5 h-3.5 border-2 rounded-full animate-spin"
+                    style={{ borderColor: 'rgba(255,255,255,0.3)', borderTopColor: '#fff' }}
+                  />
+                  <span>Scheduling…</span>
                 </>
               ) : (
                 <>

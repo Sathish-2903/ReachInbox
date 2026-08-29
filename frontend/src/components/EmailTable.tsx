@@ -7,6 +7,8 @@ import {
   Mail,
   RefreshCw,
   Search,
+  SlidersHorizontal,
+  Plus,
 } from 'lucide-react';
 
 interface EmailTableProps {
@@ -32,21 +34,42 @@ export const EmailTable: React.FC<EmailTableProps> = ({
     switch (status) {
       case 'SENT':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+            style={{
+              background: 'var(--success-muted)',
+              color: 'var(--success)',
+              border: '1px solid var(--success-border)',
+            }}
+          >
             <CheckCircle2 className="w-3 h-3" />
             Sent
           </span>
         );
       case 'PROCESSING':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/30 animate-pulse">
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+            style={{
+              background: 'var(--blue-muted)',
+              color: 'var(--blue)',
+              border: '1px solid var(--blue-border)',
+            }}
+          >
             <RefreshCw className="w-3 h-3 animate-spin" />
             Processing
           </span>
         );
       case 'FAILED':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/30">
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+            style={{
+              background: 'var(--danger-muted)',
+              color: 'var(--danger)',
+              border: '1px solid var(--danger-border)',
+            }}
+          >
             <AlertTriangle className="w-3 h-3" />
             Failed
           </span>
@@ -54,7 +77,14 @@ export const EmailTable: React.FC<EmailTableProps> = ({
       case 'SCHEDULED':
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+          <span
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+            style={{
+              background: 'var(--warning-muted)',
+              color: 'var(--warning)',
+              border: '1px solid var(--warning-border)',
+            }}
+          >
             <Clock className="w-3 h-3" />
             Scheduled
           </span>
@@ -79,75 +109,126 @@ export const EmailTable: React.FC<EmailTableProps> = ({
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl shadow-xl overflow-hidden">
-      {/* Search & Actions Bar */}
-      <div className="p-4 border-b border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-gray-900/60">
-        {/* Search Bar */}
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+    <>
+      {/* Search & Filters Bar */}
+      <div
+        className="px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3"
+        style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-sidebar)' }}
+      >
+        {/* Search */}
+        <div className="relative w-full sm:w-72">
+          <Search
+            className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2"
+            style={{ color: 'var(--text-muted)' }}
+          />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by recipient, subject, body..."
-            className="w-full pl-9 pr-4 py-2 bg-gray-800/80 border border-gray-700 rounded-xl text-white text-xs placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-all"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs outline-none transition-all"
+            style={{
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+            }}
+            onFocus={e => (e.target as HTMLElement).style.borderColor = 'var(--teal)'}
+            onBlur={e => (e.target as HTMLElement).style.borderColor = 'var(--border)'}
           />
         </div>
 
-        {/* Right Tools */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        {/* Right tools */}
+        <div className="flex items-center gap-2">
+          <button
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Filters
+          </button>
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="p-2 text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-xl border border-gray-700 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-secondary)',
+            }}
             title="Refresh list"
           >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-indigo-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`}
+              style={{ color: loading ? 'var(--teal)' : undefined }} />
+            Refresh
           </button>
         </div>
       </div>
 
-      {/* Table Content */}
+      {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-gray-300">
-          <thead className="bg-gray-950/60 text-gray-400 uppercase tracking-wider text-[10px] font-semibold border-b border-gray-800">
+        <table className="w-full text-left">
+          <thead style={{ borderBottom: '1px solid var(--border)' }}>
             <tr>
-              <th className="px-6 py-3.5">Recipient</th>
-              <th className="px-6 py-3.5">Subject</th>
-              <th className="px-6 py-3.5">{activeTab === 'scheduled' ? 'Scheduled At' : 'Sent At'}</th>
-              <th className="px-6 py-3.5">Status</th>
+              {['Recipient', 'Subject', activeTab === 'scheduled' ? 'Scheduled At' : 'Sent At', 'Status'].map(h => (
+                <th
+                  key={h}
+                  className="px-5 py-3 text-[10px] font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
-
-          <tbody className="divide-y divide-gray-800/60 font-medium">
+          <tbody>
             {loading && emails.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-16 text-center text-gray-500">
+                <td colSpan={4} className="px-5 py-14 text-center">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                    <span>Loading {activeTab} emails...</span>
+                    <div
+                      className="w-5 h-5 border-2 rounded-full animate-spin"
+                      style={{ borderColor: 'var(--teal)', borderTopColor: 'transparent' }}
+                    />
+                    <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                      Loading {activeTab} emails…
+                    </span>
                   </div>
                 </td>
               </tr>
             ) : emails.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-16 text-center text-gray-500">
+                <td colSpan={4} className="px-5 py-16 text-center">
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gray-800/80 border border-gray-700 flex items-center justify-center text-gray-500">
-                      <Mail className="w-6 h-6" />
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center"
+                      style={{ background: 'var(--bg-sidebar)', border: '1px solid var(--border)' }}
+                    >
+                      <Mail className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-300">No {activeTab} emails found</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {searchQuery ? 'Try adjusting your search query' : 'Schedule your first outreach campaign'}
+                      <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        No {activeTab} emails yet
+                      </p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                        {searchQuery
+                          ? 'Try adjusting your search query'
+                          : 'Create your first outreach campaign and schedule emails to send at the right time.'}
                       </p>
                     </div>
                     {!searchQuery && (
                       <button
                         onClick={onComposeClick}
-                        className="mt-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-md shadow-indigo-600/30 transition-all"
+                        className="flex items-center gap-1.5 mt-1 px-4 py-2 text-xs font-semibold text-white rounded-lg transition-colors"
+                        style={{ background: 'var(--teal)' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--teal-hover)'}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'var(--teal)'}
                       >
-                        Compose Outreach
+                        <Plus className="w-3.5 h-3.5" />
+                        Compose Email
                       </button>
                     )}
                   </div>
@@ -157,21 +238,37 @@ export const EmailTable: React.FC<EmailTableProps> = ({
               emails.map((email) => (
                 <tr
                   key={email.id}
-                  className="hover:bg-gray-800/40 transition-colors group cursor-default"
+                  className="transition-colors"
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-card-hover)'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                  style={{ borderBottom: '1px solid var(--border)' }}
                 >
-                  <td className="px-6 py-4 text-white font-semibold flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-indigo-400">
-                      <Mail className="w-3.5 h-3.5" />
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'var(--teal-muted)', border: '1px solid var(--teal-border)' }}
+                      >
+                        <Mail className="w-3.5 h-3.5" style={{ color: 'var(--teal)' }} />
+                      </div>
+                      <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                        {email.recipient}
+                      </span>
                     </div>
-                    <span>{email.recipient}</span>
                   </td>
-                  <td className="px-6 py-4 max-w-md truncate text-gray-300">
+                  <td
+                    className="px-5 py-3.5 max-w-xs truncate text-xs"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
                     {email.subject}
                   </td>
-                  <td className="px-6 py-4 text-gray-400 font-mono text-[11px]">
+                  <td
+                    className="px-5 py-3.5 text-[11px] font-mono"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
                     {formatDate(activeTab === 'scheduled' ? email.scheduledAt : email.sentAt || email.scheduledAt)}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-5 py-3.5">
                     {getStatusBadge(email.status)}
                   </td>
                 </tr>
@@ -180,6 +277,6 @@ export const EmailTable: React.FC<EmailTableProps> = ({
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   );
 };

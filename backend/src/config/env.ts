@@ -7,7 +7,9 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 console.log('[Auth Config] GOOGLE_CLIENT_ID configured:', !!process.env.GOOGLE_CLIENT_ID);
 console.log('[Auth Config] GOOGLE_CLIENT_SECRET configured:', !!process.env.GOOGLE_CLIENT_SECRET);
-
+console.log('[Slack Config] SLACK_CLIENT_ID configured:', !!process.env.SLACK_CLIENT_ID);
+console.log('[Slack Config] SLACK_CLIENT_SECRET configured:', !!process.env.SLACK_CLIENT_SECRET);
+console.log('[Slack Config] SLACK_REDIRECT_URI:', process.env.SLACK_REDIRECT_URI);
 
 export const config = {
   port: parseInt(process.env.PORT || '3000', 10),

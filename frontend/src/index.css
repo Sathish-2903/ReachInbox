@@ -1,31 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Base font */
+/* ── CSS Design Tokens ──────────────────────────────────────────── */
+:root {
+  --bg-base:        #0B1220;
+  --bg-sidebar:     #101827;
+  --bg-card:        #131E2E;
+  --bg-card-hover:  #162235;
+  --bg-input:       #0e1929;
+
+  --border:         #243244;
+  --border-hover:   #2e4060;
+
+  --teal:           #14B8A6;
+  --teal-hover:     #0F9488;
+  --teal-muted:     rgba(20,184,166,0.10);
+  --teal-border:    rgba(20,184,166,0.25);
+
+  --blue:           #3B82F6;
+  --blue-muted:     rgba(59,130,246,0.10);
+  --blue-border:    rgba(59,130,246,0.25);
+
+  --success:        #22C55E;
+  --success-muted:  rgba(34,197,94,0.10);
+  --success-border: rgba(34,197,94,0.25);
+
+  --warning:        #F59E0B;
+  --warning-muted:  rgba(245,158,11,0.10);
+  --warning-border: rgba(245,158,11,0.25);
+
+  --danger:         #EF4444;
+  --danger-muted:   rgba(239,68,68,0.10);
+  --danger-border:  rgba(239,68,68,0.25);
+
+  --text-primary:   #E5E7EB;
+  --text-secondary: #94A3B8;
+  --text-muted:     #546680;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
 @layer base {
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
+  html { font-family: 'Inter', system-ui, sans-serif; }
 
   body {
-    @apply bg-gray-950 text-gray-100 min-h-screen;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #243244; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2e4060; }
 }
 
+/* ── Utilities ────────────────────────────────────────────────────── */
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.4s ease-out forwards;
+    animation: fadeIn 0.3s ease-out both;
   }
+
+  /* Color token helpers — easier than repeating hex */
+  .bg-card     { background-color: var(--bg-card); }
+  .bg-sidebar  { background-color: var(--bg-sidebar); }
+  .border-base { border-color: var(--border); }
+  .text-pri    { color: var(--text-primary); }
+  .text-sec    { color: var(--text-secondary); }
+  .text-muted  { color: var(--text-muted); }
 }
 
+/* ── Animations ───────────────────────────────────────────────────── */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Form element colours ─────────────────────────────────────────── */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5);
+  cursor: pointer;
 }
