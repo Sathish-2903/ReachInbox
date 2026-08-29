@@ -91,22 +91,73 @@ export class AuthService {
    * Finds or creates a user in PostgreSQL based on Google OAuth profile
    */
   async findOrCreateUser(profile: GoogleUserProfile) {
-    const user = await prisma.user.upsert({
+    const emailLower = profile.email.toLowerCase();
+
+    // 1. Try to find user by googleId
+    let user = await prisma.user.findUnique({
       where: { googleId: profile.id },
-      update: {
-        name: profile.name,
-        email: profile.email.toLowerCase(),
-        avatar: profile.picture || null,
-      },
-      create: {
-        googleId: profile.id,
-        name: profile.name,
-        email: profile.email.toLowerCase(),
-        avatar: profile.picture || null,
-      },
     });
 
-    return user;
+    if (user) {
+      // User found by googleId, update details safely
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          name: profile.name,
+          email: emailLower,
+          avatar: profile.picture || null,
+        },
+      });
+      return user;
+    }
+
+    // 2. Google ID not linked, search by email to avoid unique constraint conflict
+    user = await prisma.user.findUnique({
+      where: { email: emailLower },
+    });
+
+    if (user) {
+      // User with the email already exists, link Google ID and update details
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          googleId: profile.id,
+          name: profile.name,
+          avatar: profile.picture || null,
+        },
+      });
+      return user;
+    }
+
+    // 3. Neither Google ID nor email exists, create a new user safely
+    try {
+      user = await prisma.user.create({
+        data: {
+          googleId: profile.id,
+          name: profile.name,
+          email: emailLower,
+          avatar: profile.picture || null,
+        },
+      });
+      return user;
+    } catch (err) {
+      // Handle race condition fallback if user was created concurrently
+      user = await prisma.user.findUnique({
+        where: { email: emailLower },
+      });
+      if (user) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            googleId: profile.id,
+            name: profile.name,
+            avatar: profile.picture || null,
+          },
+        });
+        return user;
+      }
+      throw err;
+    }
   }
 
   /**

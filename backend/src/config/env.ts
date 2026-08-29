@@ -5,6 +5,9 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 // Removed second dotenv.config() to avoid overriding backend .env values
 
+console.log('[Auth Config] GOOGLE_CLIENT_ID configured:', !!process.env.GOOGLE_CLIENT_ID);
+console.log('[Auth Config] GOOGLE_CLIENT_SECRET configured:', !!process.env.GOOGLE_CLIENT_SECRET);
+
 
 export const config = {
   port: parseInt(process.env.PORT || '3000', 10),

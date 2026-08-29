@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { User } from '../types';
 import { authApi, slackApi } from '../services/api';
 import { Activity, LogOut, MessageSquare, KeyRound, X, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface HeaderProps {
   user: User | null;
@@ -10,6 +11,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ user, slackConnected, onRefreshUser }) => {
+  const { logout } = useAuth();
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
 
@@ -44,8 +46,7 @@ export const Header: React.FC<HeaderProps> = ({ user, slackConnected, onRefreshU
   };
 
   const handleLogout = () => {
-    authApi.logout();
-    window.location.reload();
+    logout();
   };
 
   return (

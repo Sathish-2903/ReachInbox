@@ -24,7 +24,7 @@ async function runEndToEndVerification() {
   const token = authService.generateToken(user);
   const decoded = authService.verifyToken(token);
   console.log(`  ✓ Authenticated user: ${user.email} (id: ${user.id})`);
-  console.log(`  ✓ JWT verified: exp=${new Date(decoded.exp * 1000).toISOString()}`);
+  console.log(`  ✓ JWT verified: exp=${new Date((decoded as any).exp * 1000).toISOString()}`);
 
   // STEP 2: Create Email Campaign & Persist in PostgreSQL & BullMQ
   console.log('\n[Flow 2/6] Scheduling Outreach Email Campaign...');
